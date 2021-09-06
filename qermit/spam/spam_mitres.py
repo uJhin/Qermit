@@ -71,11 +71,11 @@ def gen_FullyCorrelated_SPAM_MitRes(
 
     _task_graph_spam_correction.add_wire()
     _task_graph_spam_correction.prepend(gen_get_bit_maps_task())
-    _task_graph_spam_correction.prepend(
-        backend_compile_circuit_shots_task_gen(
-            backend, kwargs.get("optimisation_level", 1)
-        )
-    )
+    # _task_graph_spam_correction.prepend(
+    #     backend_compile_circuit_shots_task_gen(
+    #         backend, kwargs.get("optimisation_level", 1)
+    #     )
+    # )
 
     _task_graph_spam_calib.add_wire()
     _task_graph_spam_calib.append(

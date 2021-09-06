@@ -460,7 +460,10 @@ def digital_folding_task_gen(
 
             # This compilation pass was added to account for the case that
             # the inverse of a gate is not in the gateset of the backend.
-            backend.default_compilation_pass(optimisation_level=0).apply(zne_circ)
+            # TODO: This still does not work. I think the problem is again with 
+            # routing as it merges consecutive 2-qubit gate. Is it possible to 
+            # create a rebase pass from the backend and do that to avoid routing?
+            # backend.default_compilation_pass(optimisation_level=0).apply(zne_circ)
 
             folded_circuits.append(
                 ObservableExperiment(
@@ -737,9 +740,12 @@ def gen_ZNE_MitEx(backend: Backend, noise_scaling_list: List[float], **kwargs) -
 
         _label = str(fold) + "FoldMitEx"
 
+        _fold_mitres = copy.copy(_experiment_mitres)
+
         fold_mitex = copy.copy(
             kwargs.get(
-                "fold_mitex", MitEx(backend, _label=_label, mitres=MitRes(backend))
+                # "fold_mitex", MitEx(backend, _label=_label, mitres=MitRes(backend))
+                "fold_mitex", MitEx(backend, _label=_label, mitres=_fold_mitres)
             )
         )
 

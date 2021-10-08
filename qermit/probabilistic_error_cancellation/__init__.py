@@ -22,3 +22,6 @@ Probabilistic Error Cancellation.
 from .pec_learning_based import (
     gen_PEC_learning_based_MitEx,
 )
+from .cliff_circuit_gen import (
+    random_clifford_circ
+)

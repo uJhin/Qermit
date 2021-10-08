@@ -213,6 +213,8 @@ def random_clifford_circ(n_qubits: int, **kwargs) -> Circuit:
     :rtype: Circuit
     """
 
+    # TODO: Move this seed out, or allow for multiple clifford circuits to be 
+    # generatted.
     np.random.seed(kwargs.get("seed", None))
 
     circ = Circuit(n_qubits)

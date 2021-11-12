@@ -37,7 +37,7 @@ import inspect
 from copy import deepcopy
 
 
-def gen_compiled_MitRes(backend: Backend, optimisation_level: int = 1) -> MitRes:
+def gen_compiled_MitRes(backend: Backend, everything, optimisation_level: int = 1) -> MitRes:
     """
     Returns a MitRes object with a compilation task prepended that compiles
     circuit wires via backend.compile_circuit. Optimisaion level can be optionally
@@ -51,7 +51,7 @@ def gen_compiled_MitRes(backend: Backend, optimisation_level: int = 1) -> MitRes
     :return: MitRes object with compilation task prepended.
     :rtype: MitRes
     """
-    mr = MitRes(backend)
+    mr = MitRes(backend, everything)
     mr.prepend(backend_compile_circuit_shots_task_gen(backend, optimisation_level))
     return mr
 
@@ -284,7 +284,7 @@ class MitEx(TaskGraph):
         )
 
         # if mitres isn't defined, build around a mitres which compiles circuits
-        _mitres = kwargs.get("mitres", gen_compiled_MitRes(backend))
+        _mitres = kwargs.get("mitres", gen_compiled_MitRes(backend, []))
         self._task_graph.add_edge(
             collate_circuit_shots_task, _mitres, key=(0, 0), data=None
         )

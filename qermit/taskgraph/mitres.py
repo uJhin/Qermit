@@ -59,7 +59,7 @@ def backend_compile_circuit_shots_task_gen(
     )
 
 
-def backend_handle_task_gen(backend: Backend) -> MitTask:
+def backend_handle_task_gen(backend: Backend, everything) -> MitTask:
     """
     Passes every tuple of Circuit and Shots to the backend object MitTask
     is defined by, returning a handle for later retrieving results for each circuit.
@@ -82,7 +82,7 @@ def backend_handle_task_gen(backend: Backend) -> MitTask:
 
         if len(circuit_wires) != 0:
             circs, shots = map(list, zip(*circuit_wires))
-
+            everything.append((circs,))
             results = backend.process_circuits(
                 circs, n_shots=cast(Sequence[int], shots)
             )
@@ -96,7 +96,7 @@ def backend_handle_task_gen(backend: Backend) -> MitTask:
     )
 
 
-def backend_res_task_gen(backend: Backend) -> MitTask:
+def backend_res_task_gen(backend: Backend, everything) -> MitTask:
     """
     For each ResultHandle passed to task, retrieves a BackendResult object from
     the backend the task is defined by.
@@ -108,7 +108,7 @@ def backend_res_task_gen(backend: Backend) -> MitTask:
     def task(obj, handles: List[ResultHandle]) -> Tuple[List[BackendResult]]:
 
         results = backend.get_results(handles)
-
+        everything.append((results,))
         return (results,)
         """
         :param handles: ResultHandle objects previously produced from backend.
@@ -131,6 +131,7 @@ class MitRes(TaskGraph):
     def __init__(
         self,
         backend: Backend,
+        everything,
         _label: str = "MitRes",
     ) -> None:
         """
@@ -149,8 +150,8 @@ class MitRes(TaskGraph):
         # default constructor runs all circuits through passed Backend
         self._task_graph = nx.MultiDiGraph()
 
-        c2h = backend_handle_task_gen(backend)
-        h2r = backend_res_task_gen(backend)
+        c2h = backend_handle_task_gen(backend, everything)
+        h2r = backend_res_task_gen(backend, everything)
 
         self._i, self._o = IOTask.Input, IOTask.Output
         self._task_graph.add_edge(self._i, c2h, key=(0, 0), data=None)

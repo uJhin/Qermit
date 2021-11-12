@@ -430,6 +430,7 @@ def gen_CDR_MitEx(
     n_non_cliffords: int,
     n_pairs: int,
     total_state_circuits: int,
+    everything,
     **kwargs
 ) -> MitEx:
     """
@@ -467,7 +468,7 @@ def gen_CDR_MitEx(
             MitEx(
                 simulator_backend,
                 _label="StatesSimMitex",
-                mitres=gen_compiled_MitRes(simulator_backend, 0),
+                mitres=gen_compiled_MitRes(simulator_backend, everything, 0),
             ),
         )
     )
@@ -477,7 +478,7 @@ def gen_CDR_MitEx(
             MitEx(
                 device_backend,
                 _label="StatesDeviceMitex",
-                mitres=gen_compiled_MitRes(device_backend, 0),
+                mitres=gen_compiled_MitRes(device_backend, everything, 0),
             ),
         )
     )
@@ -487,7 +488,7 @@ def gen_CDR_MitEx(
             MitEx(
                 device_backend,
                 _label="ExperimentMitex",
-                mitres=gen_compiled_MitRes(device_backend, 0),
+                mitres=gen_compiled_MitRes(device_backend, everything, 0),
             ),
         )
     )

@@ -377,7 +377,7 @@ class TaskGraph:
             out_edges = self._task_graph.out_edges(task, data=True, keys=True)
 
             outputs = task(inputs)
-            self._cache.append((task._label, outputs))
+            self._cache.append((task._label, task, outputs))
             assert len(out_edges) == len(outputs)
             for _, _, ports, o_data in out_edges:
                 o_data["data"] = outputs[ports[0]]

@@ -523,13 +523,16 @@ def gen_CDR_MitEx(
         circuits which have noisy expectation values far from that of the
         original circuit.
     """
+    
+    _optimisation_level = kwargs.get("optimisation_level", 0)
+
     _states_sim_mitex = copy.copy(
         kwargs.get(
             "states_simluator_mitex",
             MitEx(
                 simulator_backend,
                 _label="StatesSimMitex",
-                mitres=gen_compiled_MitRes(simulator_backend, 0),
+                mitres=gen_compiled_MitRes(simulator_backend, _optimisation_level),
             ),
         )
     )
@@ -539,7 +542,7 @@ def gen_CDR_MitEx(
             MitEx(
                 device_backend,
                 _label="StatesDeviceMitex",
-                mitres=gen_compiled_MitRes(device_backend, 0),
+                mitres=gen_compiled_MitRes(device_backend, _optimisation_level),
             ),
         )
     )
@@ -549,7 +552,7 @@ def gen_CDR_MitEx(
             MitEx(
                 device_backend,
                 _label="ExperimentMitex",
-                mitres=gen_compiled_MitRes(device_backend, 0),
+                mitres=gen_compiled_MitRes(device_backend, _optimisation_level),
             ),
         )
     )

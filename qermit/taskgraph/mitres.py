@@ -83,9 +83,7 @@ def backend_handle_task_gen(backend: Backend) -> MitTask:
         if len(circuit_wires) != 0:
             circs, shots = map(list, zip(*circuit_wires))
 
-            results = backend.process_circuits(
-                circs, n_shots=cast(Sequence[int], shots)
-            )
+            results = [backend.process_circuit(circ, n_shots=shot) for (circ, shot) in zip(circs, shots)]
 
             return (results,)
         else:

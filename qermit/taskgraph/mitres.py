@@ -80,12 +80,17 @@ def backend_handle_task_gen(backend: Backend) -> MitTask:
         :rtype: Tuple[List[ResultHandle]]
         """
 
+        print("==== Running Circuits ====")
+        for cs in circuit_wires:
+            print("num shots", cs.Shots)
+
         if len(circuit_wires) != 0:
             circs, shots = map(list, zip(*circuit_wires))
 
             results = backend.process_circuits(
                 circs, n_shots=cast(Sequence[int], shots)
             )
+            # results = [backend.process_circuit(circ, n_shots=shot) for (circ, shot) in zip(circs, shots)]
 
             return (results,)
         else:
@@ -326,6 +331,8 @@ def split_shots_task_gen(max_shots: int) -> MitTask:
         :rtype: Tuple[List[CircuitShots], List[int]]
         """
 
+        print("==== Doing Some Splitting ====")
+
         # A new list of circuits and shots
         split_circuit_wires = []
         # and index of which circuits in the new list correspond to which in
@@ -342,6 +349,8 @@ def split_shots_task_gen(max_shots: int) -> MitTask:
             shots_to_run = circ_shots.Shots
 
             while shots_to_run > 0:
+
+                print("num shots", min(max_shots, shots_to_run))
 
                 split_circ_shots = CircuitShots(
                     circ_shots.Circuit, min(max_shots, shots_to_run)

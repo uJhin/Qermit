@@ -225,6 +225,10 @@ def get_expectations_task_gen() -> MitTask:
         :return: Each experiments expectation results in a QubitPauliOperator
         :rtype: Tuple[List[QubitPauliOperator]]
         """
+        print("==== Calculating Expectations ==== ")
+        for operator_result in all_results:
+            for result in operator_result:
+                print("num shots", len(result.get_shots()))
         if len(all_results) != len(trackers):
             raise ValueError(
                 "{} results and {} observable trackers. Values should be identical.".format(

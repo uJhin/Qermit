@@ -64,6 +64,14 @@ def gen_accreditation_task() -> MitTask:
 # rather than taking Backends as inputs and then turning them into MitRes
 # objects. This might make the compositional nature of Qermit more apparent.
 def gen_APS_MitRes(backend: Backend, **kwargs) -> MitRes:
+    """Accreditation and post selection based error mitigation, based on
+    the work of https://arxiv.org/abs/2109.14329#
+
+    :param backend: [description]
+    :type backend: Backend
+    :return: [description]
+    :rtype: MitRes
+    """
 
     _experiment_mitres = copy(
         kwargs.get(

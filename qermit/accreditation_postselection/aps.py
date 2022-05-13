@@ -20,10 +20,30 @@ from qermit import (
 from copy import copy
 from typing import List, Tuple
 from pytket.backends.backendresult import BackendResult
+from qermit.taskgraph import backend_compile_circuit_shots_task_gen
+from qermit import CircuitShots
+from pytket.passes import auto_rebase_pass
+from pytket import OpType
+
+APS_rebase = auto_rebase_pass({OpType.CZ, OpType.TK1})
 
 def gen_rebase_task() -> MitTask:
 
-    def task(obj, exp_wire):
+    def task(obj, exp_wire:List[CircuitShots]) -> Tuple[list[CircuitShots]]:
+
+        print("=== gen_rebase_task ===")
+
+        print("exp_wire:", *exp_wire, sep='\n')
+
+        rebased_exp_wire = []
+
+        for circ_shot in exp_wire:
+
+            rebased_circ = circ_shot.Circuit
+            shots = circ_shot.Shots
+
+            APS_rebase.apply(rebased_circ)
+            rebased_exp_wire.append(CircuitShots(Circuit=rebased_circ, Shots=shots))
 
         return (exp_wire,)
 
@@ -34,9 +54,14 @@ def gen_rebase_task() -> MitTask:
         _method=task,
     )
 
-def gen_clifford_circ_task() -> MitTask:
+def gen_trap_circ_task(num_traps:int) -> MitTask:
 
-    def task(obj, exp_wire):
+    def task(obj, exp_wire:list[CircuitShots]) -> Tuple[List[CircuitShots], List]:
+
+        print("=== gen_trap_circ_task ===")
+
+        print("num_traps", num_traps)
+        print("exp_wire:", *exp_wire, sep='\n')
         
         return (exp_wire, exp_wire, )
 
@@ -49,9 +74,14 @@ def gen_clifford_circ_task() -> MitTask:
 
 def gen_accreditation_task() -> MitTask:
 
-    def task(obj, exp_wire, exp_type_labels) -> Tuple[List[BackendResult]]:
+    def task(obj, results_wire:List[BackendResult], exp_type_labels:list) -> Tuple[List[BackendResult]]:
 
-        return (exp_wire,)
+        print("=== gen_accreditation_task ===")
+
+        print("results_wire:", *[result.get_counts() for result in results_wire], sep='\n')
+        print("exp_type_labels:", *exp_type_labels, sep='\n')
+
+        return (results_wire,)
 
     return MitTask(
         _label="Accreditation",
@@ -63,7 +93,7 @@ def gen_accreditation_task() -> MitTask:
 # Would it be crazy if we just had Mitres objects as requited inputs,
 # rather than taking Backends as inputs and then turning them into MitRes
 # objects. This might make the compositional nature of Qermit more apparent.
-def gen_APS_MitRes(backend: Backend, **kwargs) -> MitRes:
+def gen_APS_MitRes(backend: Backend, num_traps: int, **kwargs) -> MitRes:
     """Accreditation and post selection based error mitigation, based on
     the work of https://arxiv.org/abs/2109.14329#
 
@@ -73,10 +103,13 @@ def gen_APS_MitRes(backend: Backend, **kwargs) -> MitRes:
     :rtype: MitRes
     """
 
+    default_mitres = MitRes(backend)
+    default_mitres.prepend(backend_compile_circuit_shots_task_gen(backend))
+
     _experiment_mitres = copy(
         kwargs.get(
             "experiment_mitres",
-            MitRes(backend),
+            default_mitres,
         )
     )
 
@@ -84,7 +117,7 @@ def gen_APS_MitRes(backend: Backend, **kwargs) -> MitRes:
 
     _experiment_taskgraph.add_wire()
     _experiment_taskgraph.append(gen_accreditation_task())
-    _experiment_taskgraph.prepend(gen_clifford_circ_task())
+    _experiment_taskgraph.prepend(gen_trap_circ_task(num_traps))
 
     _experiment_taskgraph.prepend(gen_rebase_task())
 
